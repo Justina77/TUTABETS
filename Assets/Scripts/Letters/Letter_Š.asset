@@ -10,10 +10,10 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c7ea5f6fa2fa8b0498d2f55d6d537226, type: 3}
-  m_Name: Letter_A
+  m_Name: "Letter_\u0160"
   m_EditorClassIdentifier: 
-  letter: A
-  correctObject: {fileID: 8091965819703247989, guid: 719c3fca17628e54eb5c3211f753b574, type: 3}
+  letter: "\u0160"
+  correctObject: {fileID: 2078116615608819801, guid: 04c6220b29c38b9498bdc29b06c21d26, type: 3}
   wrongObjects:
   - {fileID: 2078116615608819801, guid: b751f3c06c94481459d4e7cb4bf196b2, type: 3}
   - {fileID: 3773409824913433043, guid: 71e021ea523a61c4faf6f4ed12bb86ac, type: 3}
@@ -44,6 +44,6 @@ MonoBehaviour:
   - {fileID: 2078116615608819801, guid: 47bc6faef49a4794cb490543efd24d3a, type: 3}
   - {fileID: 2078116615608819801, guid: a3c077a2a9f080f409e6a1b103a46b95, type: 3}
   - {fileID: 2078116615608819801, guid: 303c2b67e656b0a4881ec73a17b75d0b, type: 3}
-  - {fileID: 2078116615608819801, guid: 04c6220b29c38b9498bdc29b06c21d26, type: 3}
+  - {fileID: 8091965819703247989, guid: 719c3fca17628e54eb5c3211f753b574, type: 3}
   - {fileID: 2078116615608819801, guid: da009aec80069754b90ba9110960d94a, type: 3}
   - {fileID: 2078116615608819801, guid: e970c028ae716e149b0e170473e2b482, type: 3}

@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 4542909371816265107}
   - component: {fileID: 3038574600861893415}
   m_Layer: 0
-  m_Name: Sphere
+  m_Name: "Arb\u016Bzs"
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
