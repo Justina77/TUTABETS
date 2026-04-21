@@ -26,9 +26,6 @@ public class GameManager : MonoBehaviour
     private bool roundFinished = false;
     private LetterData currentLetter;
 
-    [Header("Character")]
-    public PointToPointWalker character;
-
     void Start()
     {
         if (letters == null || letters.Length == 0)
@@ -76,20 +73,14 @@ public class GameManager : MonoBehaviour
         roundFinished = true;
         Debug.Log("Pareizi!");
 
-        // Play sound
+        // 1. Play Correct Sound
         if (audioSource != null && correctSound != null)
         {
             audioSource.PlayOneShot(correctSound);
         }
 
-        // Change color
+        // 2. Change Box Color to Green
         ChangeBoxColor(correctColor);
-
-        // PLAY DANCE
-        if (character != null)
-        {
-            character.PlayDance();
-        }
 
         currentIndex++;
         Invoke(nameof(StartRound), nextRoundDelay);
@@ -99,22 +90,16 @@ public class GameManager : MonoBehaviour
     {
         if (roundFinished) return;
 
-        Debug.Log("Nepareizais!");
+        Debug.Log("Nepareizais! Kaut kas cits, te nav pareizais.");
 
-        // Play sound
+        // 1. Play Wrong Sound
         if (audioSource != null && wrongSound != null)
         {
             audioSource.PlayOneShot(wrongSound);
         }
 
-        // Change color
+        // 2. Change Box Color to Red
         ChangeBoxColor(wrongColor);
-
-        // PLAY SAD
-        if (character != null)
-        {
-            character.PlaySad();
-        }
     }
 
     // --- HELPER METHOD TO CHANGE THE GLOW COLOR ---
