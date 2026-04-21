@@ -7,6 +7,7 @@ public class GameManager : MonoBehaviour
     public ObjectSpawner spawner;
     public LetterBox letterBox;
     public LetterDisplay display;
+    public MenuUIManager menuUI;
 
     public float nextRoundDelay = 0.7f;
 
@@ -16,17 +17,23 @@ public class GameManager : MonoBehaviour
     public AudioClip correctSound;
 
     [Header("Box Visuals")]
-    public Renderer boxRenderer; // Drag your letter box - cube here in the Inspector
+    public Renderer boxRenderer;
     public Color defaultColor = Color.white;
     public Color correctColor = Color.green;
     public Color wrongColor = Color.red;
-    public float glowIntensity = 2.0f; // Adjust this if the glow is too bright or too dim
+    public float glowIntensity = 2.0f;
+
+    [Header("Optional")]
+    public float wrongColorResetDelay = 0.5f;
 
     private int currentIndex = 0;
     private bool roundFinished = false;
+    private bool gameRunning = false;
     private LetterData currentLetter;
 
-    void Start()
+    public bool IsGameRunning => gameRunning;
+
+    private void Start()
     {
         if (letters == null || letters.Length == 0)
         {
@@ -34,52 +41,90 @@ public class GameManager : MonoBehaviour
             return;
         }
 
+        CancelInvoke();
+        gameRunning = false;
+        roundFinished = false;
         currentIndex = 0;
+
+        if (spawner != null)
+            spawner.ClearObjects();
+
+        if (display != null)
+            display.gameObject.SetActive(false);
+
+        ChangeBoxColor(defaultColor);
+    }
+
+    public void BeginGame()
+    {
+        if (letters == null || letters.Length == 0)
+        {
+            Debug.LogError("Masīvā letters trūkst datu.");
+            return;
+        }
+
+        CancelInvoke();
+
+        currentIndex = 0;
+        roundFinished = false;
+        gameRunning = true;
+
+        if (spawner != null)
+            spawner.ClearObjects();
+
+        if (display != null)
+            display.gameObject.SetActive(true);
+
+        ChangeBoxColor(defaultColor);
+
         StartRound();
     }
 
     public void StartRound()
     {
+        if (!gameRunning) return;
+
         if (currentIndex >= letters.Length)
         {
-            Debug.Log("Spēle beigusies.");
-            display.ShowFinished();
-            spawner.ClearObjects();
+            FinishGame();
             return;
         }
 
         roundFinished = false;
         currentLetter = letters[currentIndex];
 
-        // Reset the box color to white at the start of a new round
         ChangeBoxColor(defaultColor);
 
-        display.ShowLetter(currentLetter);
+        if (display != null)
+            display.ShowLetter(currentLetter);
 
-        spawner.SpawnObjects(
-        currentLetter.correctObject,
-        letters
-        );
+        if (spawner != null)
+        {
+            spawner.SpawnObjects(
+                currentLetter.correctObject,
+                letters
+            );
+        }
 
-        letterBox.SetCorrectItem(currentLetter.correctItemId);
+        if (letterBox != null)
+            letterBox.SetCorrectItem(currentLetter.correctItemId);
 
         Debug.Log("Pašreizējais burts: " + currentLetter.letter + " | Pareizais ID: " + currentLetter.correctItemId);
     }
 
     public void CorrectAnswer()
     {
+        if (!gameRunning) return;
         if (roundFinished) return;
 
         roundFinished = true;
         Debug.Log("Pareizi!");
 
-        // 1. Play Correct Sound
         if (audioSource != null && correctSound != null)
         {
             audioSource.PlayOneShot(correctSound);
         }
 
-        // 2. Change Box Color to Green
         ChangeBoxColor(correctColor);
 
         currentIndex++;
@@ -88,33 +133,57 @@ public class GameManager : MonoBehaviour
 
     public void WrongAnswer()
     {
+        if (!gameRunning) return;
         if (roundFinished) return;
 
         Debug.Log("Nepareizais! Kaut kas cits, te nav pareizais.");
 
-        // 1. Play Wrong Sound
         if (audioSource != null && wrongSound != null)
         {
             audioSource.PlayOneShot(wrongSound);
         }
 
-        // 2. Change Box Color to Red
         ChangeBoxColor(wrongColor);
+
+        CancelInvoke(nameof(ResetBoxColorAfterWrong));
+        Invoke(nameof(ResetBoxColorAfterWrong), wrongColorResetDelay);
     }
 
-    // --- HELPER METHOD TO CHANGE THE GLOW COLOR ---
+    private void ResetBoxColorAfterWrong()
+    {
+        if (!gameRunning) return;
+        if (roundFinished) return;
+
+        ChangeBoxColor(defaultColor);
+    }
+
+    private void FinishGame()
+    {
+        gameRunning = false;
+        roundFinished = true;
+
+        CancelInvoke();
+
+        if (spawner != null)
+            spawner.ClearObjects();
+
+        if (display != null)
+            display.gameObject.SetActive(false);
+
+        ChangeBoxColor(defaultColor);
+
+        if (menuUI != null)
+            menuUI.ShowEndMenu();
+        else
+            Debug.Log("Spēle beigusies.");
+    }
+
     private void ChangeBoxColor(Color color)
     {
-        if (boxRenderer != null)
-        {
-            // Get the material of the box
-            Material boxMat = boxRenderer.material;
+        if (boxRenderer == null) return;
 
-            // Ensure Unity knows the Emission property is active
-            boxMat.EnableKeyword("_EMISSION");
-
-            // Set the color, multiplied by the intensity so it glows brightly
-            boxMat.SetColor("_EmissionColor", color * glowIntensity);
-        }
+        Material boxMat = boxRenderer.material;
+        boxMat.EnableKeyword("_EMISSION");
+        boxMat.SetColor("_EmissionColor", color * glowIntensity);
     }
 }

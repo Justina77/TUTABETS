@@ -19,6 +19,8 @@ public class LetterBox : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
+        if (gameManager == null) return;
+        if (!gameManager.IsGameRunning) return;
         if (roundLocked) return;
 
         ThrowableItem item = other.GetComponentInParent<ThrowableItem>();
