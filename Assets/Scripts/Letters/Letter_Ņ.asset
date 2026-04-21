@@ -15,4 +15,4 @@ MonoBehaviour:
   letter: "\u0145"
   letterSprite: {fileID: 21300000, guid: 3614bec87c158784c8e268f49a5e482d, type: 3}
   correctItemId: "\u0145"
-  correctObject: {fileID: 2078116615608819801, guid: 138605d48c801014baa6fd233f26f643, type: 3}
+  correctObject: {fileID: 2078116615608819801, guid: c3515babd69937c48bd35942d2285077, type: 3}
