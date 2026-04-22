@@ -3567,6 +3567,7 @@ MonoBehaviour:
   animator: {fileID: 1812616199}
   danceCount: 5
   danceFacingTarget: {fileID: 217086660}
+  debugLogs: 1
 --- !u!1 &1812616198 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: -593497275445482950, guid: 9bbf70e0dcebdde4eb39a1c74a177146, type: 3}
@@ -3743,6 +3744,7 @@ MonoBehaviour:
   display: {fileID: 518529933}
   menuUI: {fileID: 173076878}
   nextRoundDelay: 0.7
+  character: {fileID: 1812616197}
   audioSource: {fileID: 1893104672}
   wrongSound: {fileID: 8300000, guid: 552e630dde1968a429270763dd9f7fe5, type: 3}
   correctSound: {fileID: 8300000, guid: c807d5ee5990e03459f064ed8f7a2f84, type: 3}

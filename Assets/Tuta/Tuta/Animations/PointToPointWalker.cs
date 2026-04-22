@@ -21,6 +21,9 @@ public class PointToPointWalker : MonoBehaviour
     public int danceCount = 5;
     public Transform danceFacingTarget;
 
+    [Header("Debug")]
+    public bool debugLogs = true;
+
     private Transform currentTarget;
     private Transform previousPoint;
 
@@ -29,6 +32,15 @@ public class PointToPointWalker : MonoBehaviour
     private bool isSad = false;
 
     private Coroutine currentActionRoutine;
+
+    // =======================
+    // DEBUG HELPER
+    // =======================
+    void Log(string msg)
+    {
+        if (debugLogs)
+            Debug.Log("[Walker] " + msg);
+    }
 
     void Start()
     {
@@ -41,6 +53,7 @@ public class PointToPointWalker : MonoBehaviour
 
     void Update()
     {
+        if (isDancing || isSad) return;
         if (!isMoving) return;
 
         MoveToTarget();
@@ -101,6 +114,8 @@ public class PointToPointWalker : MonoBehaviour
 
         yield return new WaitForSeconds(idleTime);
 
+        if (isDancing || isSad) yield break;
+
         Transform temp = previousPoint;
         previousPoint = currentTarget;
         currentTarget = temp;
@@ -110,29 +125,36 @@ public class PointToPointWalker : MonoBehaviour
     }
 
     // =======================
-    // ACTION SYSTEM (INTERRUPTIBLE)
+    // ACTION SYSTEM
     // =======================
 
     public void PlayDance()
     {
+        Log("PlayDance() called");
         StartAction(DanceRoutine());
     }
 
     public void PlaySad()
     {
+        Log("PlaySad() called");
         StartAction(SadRoutine());
     }
 
     void StartAction(IEnumerator routine)
     {
+        Log("StartAction()");
+
         if (currentActionRoutine != null)
         {
+            Log("Stopping current coroutine");
             StopCoroutine(currentActionRoutine);
         }
 
         isDancing = false;
         isSad = false;
+
         isMoving = false;
+        StopWalking();
 
         currentActionRoutine = StartCoroutine(routine);
     }
@@ -144,28 +166,50 @@ public class PointToPointWalker : MonoBehaviour
     IEnumerator DanceRoutine()
     {
         isDancing = true;
-        isSad = false;
-
-        StopWalking();
+        Log("DanceRoutine START");
 
         yield return RotateToTarget();
+
+        Log("After rotation");
+
+        if (animator == null)
+        {
+            Log("ERROR: Animator is NULL");
+            yield break;
+        }
 
         animator.ResetTrigger("SadTrigger");
         animator.ResetTrigger("DanceTrigger");
 
         int randomDance = Random.Range(0, danceCount);
+        Log("Setting DanceIndex = " + randomDance);
+
         animator.SetFloat("DanceIndex", randomDance);
         animator.SetTrigger("DanceTrigger");
+
+        Log("DanceTrigger SET");
 
         yield return null;
 
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-        while (!stateInfo.IsTag("Dance"))
+        float timeout = 2f;
+        float timer = 0f;
+
+        while (!stateInfo.IsTag("Dance") && timer < timeout)
         {
             stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            timer += Time.deltaTime;
             yield return null;
         }
+
+        if (!stateInfo.IsTag("Dance"))
+        {
+            Log("ERROR: Never entered Dance state");
+            yield break;
+        }
+
+        Log("Entered Dance state");
 
         while (stateInfo.normalizedTime < 1f)
         {
@@ -173,9 +217,10 @@ public class PointToPointWalker : MonoBehaviour
             yield return null;
         }
 
-        StartWalking();
-        isMoving = true;
+        Log("Dance finished");
+
         isDancing = false;
+        ResumeMovement();
     }
 
     // =======================
@@ -185,9 +230,7 @@ public class PointToPointWalker : MonoBehaviour
     IEnumerator SadRoutine()
     {
         isSad = true;
-        isDancing = false;
-
-        StopWalking();
+        Log("SadRoutine START");
 
         yield return RotateToTarget();
 
@@ -195,16 +238,29 @@ public class PointToPointWalker : MonoBehaviour
         animator.ResetTrigger("SadTrigger");
 
         animator.SetTrigger("SadTrigger");
+        Log("SadTrigger SET");
 
         yield return null;
 
         AnimatorStateInfo stateInfo = animator.GetCurrentAnimatorStateInfo(0);
 
-        while (!stateInfo.IsTag("Sad"))
+        float timeout = 2f;
+        float timer = 0f;
+
+        while (!stateInfo.IsTag("Sad") && timer < timeout)
         {
             stateInfo = animator.GetCurrentAnimatorStateInfo(0);
+            timer += Time.deltaTime;
             yield return null;
         }
+
+        if (!stateInfo.IsTag("Sad"))
+        {
+            Log("ERROR: Never entered Sad state");
+            yield break;
+        }
+
+        Log("Entered Sad state");
 
         while (stateInfo.normalizedTime < 1f)
         {
@@ -212,19 +268,25 @@ public class PointToPointWalker : MonoBehaviour
             yield return null;
         }
 
-        StartWalking();
-        isMoving = true;
+        Log("Sad finished");
+
         isSad = false;
+        ResumeMovement();
     }
 
     // =======================
-    // SHARED ROTATION
+    // ROTATION
     // =======================
 
     IEnumerator RotateToTarget()
     {
         if (danceFacingTarget == null)
+        {
+            Log("WARNING: danceFacingTarget is NULL");
             yield break;
+        }
+
+        Log("Rotating to target");
 
         Vector3 lookDir = (danceFacingTarget.position - transform.position);
         lookDir.y = 0f;
@@ -246,11 +308,23 @@ public class PointToPointWalker : MonoBehaviour
 
             transform.rotation = targetRot;
         }
+
+        Log("Rotation complete");
     }
 
     // =======================
-    // ANIMATION HELPERS
+    // HELPERS
     // =======================
+
+    void ResumeMovement()
+    {
+        if (!isDancing && !isSad)
+        {
+            Log("Resuming movement");
+            StartWalking();
+            isMoving = true;
+        }
+    }
 
     void StartWalking()
     {

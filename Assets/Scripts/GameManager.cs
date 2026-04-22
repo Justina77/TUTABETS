@@ -11,6 +11,9 @@ public class GameManager : MonoBehaviour
 
     public float nextRoundDelay = 0.7f;
 
+    [Header("Character")]
+    public PointToPointWalker character;
+
     [Header("Audio Setup")]
     public AudioSource audioSource;
     public AudioClip wrongSound;
@@ -127,6 +130,16 @@ public class GameManager : MonoBehaviour
 
         ChangeBoxColor(correctColor);
 
+        if (character != null)
+        {
+            Debug.Log("Calling PlayDance on character: " + character.name);
+            character.PlayDance();
+        }
+        else
+        {
+            Debug.LogError("Character is NULL in GameManager");
+        }
+
         currentIndex++;
         Invoke(nameof(StartRound), nextRoundDelay);
     }
@@ -144,6 +157,11 @@ public class GameManager : MonoBehaviour
         }
 
         ChangeBoxColor(wrongColor);
+
+        if (character != null)
+        {
+            character.PlaySad();
+        }
 
         CancelInvoke(nameof(ResetBoxColorAfterWrong));
         Invoke(nameof(ResetBoxColorAfterWrong), wrongColorResetDelay);
