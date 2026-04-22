@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Letter_A
   m_EditorClassIdentifier: 
   letter: A
-  letterSprite: {fileID: 21300000, guid: e083af97a69bbe94f9392002903de96f, type: 3}
+  letterSprite: {fileID: 21300000, guid: 1261592afeda69446b998c49874c89df, type: 3}
   correctItemId: A
   correctObject: {fileID: 8091965819703247989, guid: 719c3fca17628e54eb5c3211f753b574, type: 3}
